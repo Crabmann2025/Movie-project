@@ -1,78 +1,122 @@
+# movie_storage_sql.py
 from sqlalchemy import create_engine, text
 
-# Database URL
 DB_URL = "sqlite:///movies.db"
-
-# Create engine
 engine = create_engine(DB_URL, echo=False)
 
-# Create "movies" table if it doesn't exist
-with engine.connect() as conn_outer:
-    conn_outer.execute(text("""
-        CREATE TABLE IF NOT EXISTS movies (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT UNIQUE NOT NULL,
-            year INTEGER NOT NULL,
-            rating REAL NOT NULL,
-            poster_url TEXT
-        )
+# --- Create tables if they don't exist ---
+with engine.connect() as conn:
+    conn.execute(text("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL
+    )
     """))
-    conn_outer.commit()
+    conn.execute(text("""
+    CREATE TABLE IF NOT EXISTS movies (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        year INTEGER NOT NULL,
+        rating REAL NOT NULL,
+        poster_url TEXT,
+        user_id INTEGER NOT NULL,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+    """))
+    conn.commit()
 
+# --- User Functions ---
+def list_users():
+    """Return a list of all users."""
+    with engine.connect() as conn:
+        result = conn.execute(text("SELECT username FROM users"))
+        return [row[0] for row in result.fetchall()]
 
-def list_movies():
-    """Return all movies as a dictionary."""
-    with engine.connect() as conn_inner:
-        result = conn_inner.execute(text("SELECT title, year, rating, poster_url FROM movies"))
+def add_user(username):
+    """Create a new user."""
+    with engine.connect() as conn:
+        try:
+            conn.execute(text("INSERT INTO users (username) VALUES (:username)"), {"username": username})
+            conn.commit()
+            print(f"User '{username}' created successfully.")
+        except Exception as e:
+            print(f"Error creating user: {e}")
+
+def get_user_id(username):
+    """Return the user ID for a given username."""
+    with engine.connect() as conn:
+        result = conn.execute(
+            text("SELECT id FROM users WHERE username=:username"),
+            {"username": username}
+        ).fetchone()
+    return result[0] if result else None
+
+# --- Movie Functions ---
+def list_movies(username):
+    """Return all movies for a user as a dict keyed by movie ID."""
+    user_id = get_user_id(username)
+    if not user_id:
+        return {}
+
+    with engine.connect() as conn:
+        result = conn.execute(
+            text("SELECT id, title, year, rating, poster_url FROM movies WHERE user_id=:user_id"),
+            {"user_id": user_id}
+        )
         movies = result.fetchall()
-    return {
-        row[0]: {"year": row[1], "rating": row[2], "poster_url": row[3]}
-        for row in movies
-    }
 
+    return {row[0]: {"title": row[1], "year": row[2], "rating": row[3], "poster_url": row[4]} for row in movies}
 
-def add_movie(title, year, rating, poster_url=None):
-    """Add a new movie to the database."""
-    with engine.connect() as conn_inner:
+def add_movie(title, year, rating, poster_url=None, user=None):
+    """Add a movie for a user."""
+    user_id = get_user_id(user)
+    if not user_id:
+        print(f"User '{user}' not found.")
+        return
+
+    with engine.connect() as conn:
         try:
-            conn_inner.execute(text(
-                "INSERT INTO movies (title, year, rating, poster_url) VALUES (:title, :year, :rating, :poster_url)"
-            ), {"title": title, "year": year, "rating": rating, "poster_url": poster_url})
-            conn_inner.commit()
-            print(f"Movie '{title}' added successfully.")
+            conn.execute(text("""
+                INSERT INTO movies (title, year, rating, poster_url, user_id)
+                VALUES (:title, :year, :rating, :poster_url, :user_id)
+            """), {"title": title, "year": year, "rating": rating, "poster_url": poster_url, "user_id": user_id})
+            conn.commit()
+            print(f"Movie '{title}' added for {user}.")
         except Exception as e:
-            print(f"Error adding movie '{title}': {e}")
+            print(f"Error adding movie: {e}")
 
+def delete_movie(movie_id, user=None):
+    """Delete a movie by its ID for a specific user."""
+    user_id = get_user_id(user)
+    if not user_id:
+        print(f"User '{user}' not found.")
+        return
 
-def delete_movie(title):
-    """Delete a movie from the database."""
-    with engine.connect() as conn_inner:
-        try:
-            result = conn_inner.execute(text(
-                "DELETE FROM movies WHERE title = :title"
-            ), {"title": title})
-            conn_inner.commit()
-            if result.rowcount:
-                print(f"Movie '{title}' deleted successfully.")
-            else:
-                print(f"Movie '{title}' not found.")
-        except Exception as e:
-            print(f"Error deleting movie '{title}': {e}")
+    with engine.connect() as conn:
+        result = conn.execute(
+            text("DELETE FROM movies WHERE id=:id AND user_id=:user_id"),
+            {"id": movie_id, "user_id": user_id}
+        )
+        conn.commit()
+        if result.rowcount:
+            print(f"Movie ID {movie_id} deleted for {user}.")
+        else:
+            print(f"Movie ID {movie_id} not found for {user}.")
 
+def update_movie(movie_id, rating, user=None):
+    """Update a movie's rating by ID for a specific user."""
+    user_id = get_user_id(user)
+    if not user_id:
+        print(f"User '{user}' not found.")
+        return
 
-def update_movie(title, rating):
-    """Update the rating of a movie."""
-    with engine.connect() as conn_inner:
-        try:
-            result = conn_inner.execute(text(
-                "UPDATE movies SET rating = :rating WHERE title = :title"
-            ), {"title": title, "rating": rating})
-            conn_inner.commit()
-            if result.rowcount:
-                print(f"Movie '{title}' updated successfully.")
-            else:
-                print(f"Movie '{title}' not found.")
-        except Exception as e:
-            print(f"Error updating movie '{title}': {e}")
-
-
+    with engine.connect() as conn:
+        result = conn.execute(
+            text("UPDATE movies SET rating=:rating WHERE id=:id AND user_id=:user_id"),
+            {"rating": rating, "id": movie_id, "user_id": user_id}
+        )
+        conn.commit()
+        if result.rowcount:
+            print(f"Movie ID {movie_id} rating updated for {user}.")
+        else:
+            print(f"Movie ID {movie_id} not found for {user}.")

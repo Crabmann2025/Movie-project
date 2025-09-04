@@ -1,3 +1,4 @@
+from omdb_api import fetch_movie
 import movie_storage_sql as storage
 
 
@@ -12,31 +13,23 @@ def list_movies():
 
 
 def add_movie():
-    """Add a new movie with validated input."""
-    title = input("Movie title: ").strip()
+    title = input("Enter movie title: ").strip()
     if not title:
         print("Title cannot be empty.")
         return
 
-    try:
-        year = int(input("Release year: "))
-        if year < 1888 or year > 2100:
-            print("Please enter a valid year between 1888 and 2100.")
-            return
-    except ValueError:
-        print("Year must be a number.")
-        return
+    movie_data = fetch_movie(title)
+    if not movie_data:
+        return  # Fehler wird schon in fetch_movie ausgegeben
 
-    try:
-        rating = float(input("Rating (1-10): "))
-        if rating < 1 or rating > 10:
-            print("Rating must be between 1 and 10.")
-            return
-    except ValueError:
-        print("Rating must be a number between 1 and 10.")
-        return
+    storage.add_movie(
+        movie_data["title"],
+        movie_data["year"],
+        movie_data["rating"],
+        movie_data["poster_url"]
+    )
+    print(f"Movie '{movie_data['title']}' added successfully!")
 
-    storage.add_movie(title, year, rating)
 
 
 def delete_movie():

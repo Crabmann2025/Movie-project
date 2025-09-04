@@ -1,90 +1,140 @@
-import movie_storage
+import movie_storage_sql as storage
+
 
 def list_movies():
-    movies = movie_storage.get_movies()
+    """List all movies from the database."""
+    movies = storage.list_movies()
     if not movies:
-        print("Keine Filme vorhanden.")
+        print("No movies available.")
         return
     for title, movie in movies.items():
-        print(f"{title} ({movie['year']}), Bewertung: {movie['rating']:.1f}")
+        print(f"{title} ({movie['year']}), Rating: {movie['rating']:.1f}")
+
 
 def add_movie():
-    title = input("Filmtitel: ")
-    year = int(input("Erscheinungsjahr: "))
-    rating = float(input("Bewertung (1-10): "))
+    """Add a new movie with validated input."""
+    title = input("Movie title: ").strip()
+    if not title:
+        print("Title cannot be empty.")
+        return
+
     try:
-        movie_storage.add_movie(title, year, rating)
-        print(f"Film '{title}' wurde hinzugefügt.")
-    except ValueError as e:
-        print(e)
+        year = int(input("Release year: "))
+        if year < 1888 or year > 2100:
+            print("Please enter a valid year between 1888 and 2100.")
+            return
+    except ValueError:
+        print("Year must be a number.")
+        return
+
+    try:
+        rating = float(input("Rating (1-10): "))
+        if rating < 1 or rating > 10:
+            print("Rating must be between 1 and 10.")
+            return
+    except ValueError:
+        print("Rating must be a number between 1 and 10.")
+        return
+
+    storage.add_movie(title, year, rating)
+
 
 def delete_movie():
-    title = input("Welchen Film möchtest du löschen? ")
-    try:
-        movie_storage.delete_movie(title)
-        print(f"Film '{title}' wurde gelöscht.")
-    except ValueError as e:
-        print(e)
+    """Delete a movie."""
+    title = input("Which movie do you want to delete? ").strip()
+    if not title:
+        print("Title cannot be empty.")
+        return
+    storage.delete_movie(title)
+
 
 def update_movie_rating():
-    title = input("Welchen Film möchtest du bewerten? ")
+    """Update a movie's rating."""
+    title = input("Which movie do you want to rate? ").strip()
+    if not title:
+        print("Title cannot be empty.")
+        return
+
     try:
-        new_rating = float(input("Neue Bewertung (1-10): "))
-        movie_storage.update_movie(title, new_rating)
-        print(f"Bewertung von '{title}' wurde aktualisiert.")
-    except ValueError as e:
-        print(e)
+        new_rating = float(input("New rating (1-10): "))
+        if new_rating < 1 or new_rating > 10:
+            print("Rating must be between 1 and 10.")
+            return
+    except ValueError:
+        print("Rating must be a number between 1 and 10.")
+        return
+
+    storage.update_movie(title, new_rating)
+
 
 def movies_sorted_by_rating():
-    movies = movie_storage.get_movies()
-    sorted_movies = sorted(movies.items(), key=lambda item: item[1]['rating'], reverse=True)
-    print("Filme sortiert nach Bewertung:")
+    """Display movies sorted by rating."""
+    movies = storage.list_movies()
+    if not movies:
+        print("No movies available.")
+        return
+
+    sorted_movies = sorted(
+        movies.items(), key=lambda item: item[1]['rating'], reverse=True
+    )
+    print("Movies sorted by rating:")
     for title, movie in sorted_movies:
-        print(f"{title} ({movie['year']}), Bewertung: {movie['rating']:.1f}")
+        print(f"{title} ({movie['year']}), Rating: {movie['rating']:.1f}")
+
 
 def search_movies():
-    query = input("Suchbegriff für Filmtitel: ").lower()
+    """Search movies by title."""
+    query = input("Search term for movie title: ").strip().lower()
+    if not query:
+        print("Search term cannot be empty.")
+        return
+
+    movies = storage.list_movies()
     found = False
-    for title, movie in movie_storage.get_movies().items():
+    for title, movie in movies.items():
         if query in title.lower():
-            print(f"{title} ({movie['year']}), Bewertung: {movie['rating']:.1f}")
+            print(f"{title} ({movie['year']}), Rating: {movie['rating']:.1f}")
             found = True
     if not found:
-        print("Keine Filme gefunden.")
+        print("No movies found.")
+
 
 def movie_stats():
-    movies = movie_storage.get_movies()
+    """Display statistics: top and lowest rated movies."""
+    movies = storage.list_movies()
     if not movies:
-        print("Keine Filme vorhanden.")
+        print("No movies available.")
         return
 
     ratings = [movie["rating"] for movie in movies.values()]
     max_rating = max(ratings)
     min_rating = min(ratings)
 
-    print("\nTop bewertete Filme:")
+    print("\nTop rated movies:")
     for title, movie in movies.items():
         if movie["rating"] == max_rating:
-            print(f"{title} ({movie['year']}), Bewertung: {movie['rating']:.1f}")
+            print(f"{title} ({movie['year']}), Rating: {movie['rating']:.1f}")
 
-    print("\nSchlecht bewertete Filme:")
+    print("\nLowest rated movies:")
     for title, movie in movies.items():
         if movie["rating"] == min_rating:
-            print(f"{title} ({movie['year']}), Bewertung: {movie['rating']:.1f}")
+            print(f"{title} ({movie['year']}), Rating: {movie['rating']:.1f}")
+
 
 def main():
+    """Main program loop."""
     while True:
-        print("\nMenü:")
-        print("0. Beenden")
-        print("1. Filme auflisten")
-        print("2. Film hinzufügen")
-        print("3. Film löschen")
-        print("4. Bewertung aktualisieren")
-        print("5. Filme nach Bewertung sortieren")
-        print("6. Filme suchen")
-        print("7. Statistik anzeigen")
+        print("\nMenu:")
+        print("0. Quit")
+        print("1. List movies")
+        print("2. Add movie")
+        print("3. Delete movie")
+        print("4. Update rating")
+        print("5. Movies sorted by rating")
+        print("6. Search movies")
+        print("7. Show statistics")
 
-        choice = input("Wähle eine Option: ")
+        choice = input("Choose an option: ").strip()
 
         if choice == "0":
             print("Bye!")
@@ -104,7 +154,8 @@ def main():
         elif choice == "7":
             movie_stats()
         else:
-            print("Ungültige Eingabe, bitte erneut versuchen.")
+            print("Invalid input, please try again.")
+
 
 if __name__ == "__main__":
     main()

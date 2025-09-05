@@ -3,10 +3,10 @@ from omdb_api import fetch_movie
 import movie_storage_sql as storage
 import os
 
-# --- Global Active User ---
+# Global Active User
 active_user = None
 
-# --- Helper Functions ---
+# Helper Functions
 def get_user_movies():
     if not active_user:
         print("No active user selected.")
@@ -17,7 +17,7 @@ def get_user_movies():
         print(f"Error accessing movies for {active_user}: {e}")
         return {}
 
-# --- User Functions ---
+# User Functions
 def choose_user():
     global active_user
     while True:
@@ -51,7 +51,8 @@ def choose_user():
 
     print(f"\nLogged in as: {active_user}\n")
 
-# --- Movie Functions ---
+
+#  Movie Functions
 def list_movies():
     movies = get_user_movies()
     if not movies:
@@ -60,6 +61,7 @@ def list_movies():
     print(f"Movies for {active_user}:")
     for idx, (movie_id, movie) in enumerate(movies.items(), start=1):
         print(f"{idx}. {movie['title']} ({movie['year']}), Rating: {movie['rating']:.1f}")
+
 
 def add_movie():
     title = input("Enter movie title: ").strip()
@@ -84,6 +86,7 @@ def add_movie():
     except Exception as e:
         print(f"Error adding movie: {e}")
 
+
 def delete_movie():
     movies = get_user_movies()
     if not movies:
@@ -107,6 +110,7 @@ def delete_movie():
         print(f"Movie '{movies[movie_id]['title']}' deleted successfully.")
     except Exception as e:
         print(f"Error deleting movie: {e}")
+
 
 def update_movie_rating():
     movies = get_user_movies()
@@ -138,6 +142,7 @@ def update_movie_rating():
     except Exception as e:
         print(f"Error updating rating: {e}")
 
+
 def movies_sorted_by_rating():
     movies = get_user_movies()
     if not movies:
@@ -146,6 +151,7 @@ def movies_sorted_by_rating():
     print(f"Movies sorted by rating for {active_user}:")
     for idx, (movie_id, movie) in enumerate(sorted_movies, start=1):
         print(f"{idx}. {movie['title']} ({movie['year']}), Rating: {movie['rating']:.1f}")
+
 
 def search_movies():
     query = input("Search term for movie title: ").strip().lower()
@@ -161,6 +167,7 @@ def search_movies():
             found = True
     if not found:
         print("No movies found.")
+
 
 def movie_stats():
     movies = get_user_movies()
@@ -179,6 +186,7 @@ def movie_stats():
         if movie["rating"] == min_rating:
             print(f"{idx}. {movie['title']} ({movie['year']}), Rating: {movie['rating']:.1f}")
 
+
 def random_movie():
     movies = get_user_movies()
     if not movies:
@@ -187,12 +195,16 @@ def random_movie():
     print("Random movie:")
     print(f"{movie['title']} ({movie['year']}), Rating: {movie['rating']:.1f}")
 
+
 def generate_website():
     if not active_user:
         print("No active user selected.")
         return
-    template_path = os.path.join("_static", "index_template.html")
-    output_path = f"{active_user}.html"
+
+    template_path = os.path.join("templates", "index_template.html")
+    output_dir = "generated_sites"  # Neuer Ordner
+    os.makedirs(output_dir, exist_ok=True)  # Ordner wird erstellt, falls er nicht existiert
+    output_path = os.path.join(output_dir, f"{active_user}.html")
 
     if not os.path.exists(template_path):
         print(f"Template file not found: {template_path}")
@@ -233,7 +245,8 @@ def generate_website():
     except Exception as e:
         print(f"Error writing website: {e}")
 
-# --- Main Program ---
+
+# Main Program
 def main():
     print("Welcome to the Movie App! 🎬")
     choose_user()
@@ -270,5 +283,6 @@ def main():
         else:
             print("Invalid input, please try again.")
 
+# --------------- Start ------------------
 if __name__ == "__main__":
     main()

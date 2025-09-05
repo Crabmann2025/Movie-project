@@ -1,63 +1,95 @@
+/* Body */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #121212;
     color: #ffffff;
     margin: 0;
     padding: 0;
 }
 
-h1 {
+/* Neuer moderner Header */
+.list-movies-title {
     text-align: center;
-    padding: 20px;
-    color: #ffcc00;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #e07b00, #cca300); /* etwas dunkler */
+    color: #121212;
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-bottom-left-radius: 25px;
+    border-bottom-right-radius: 25px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
+.list-movies-title:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8);
+}
+
+/* Animiertes Farbverlauf-Text */
+.list-movies-title h1 {
+    background: linear-gradient(90deg, #cca300, #e07b00, #cca300); /* etwas dunkler */
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradient-animation 5s ease infinite;
+}
+
+@keyframes gradient-animation {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+}
+
 
 /* Container für alle Filme */
 .movie-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
-    padding: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 25px;
+    padding: 30px;
 }
 
 /* Einzelnes Filmelement */
 .movie-item {
     background-color: #1e1e1e;
-    border-radius: 12px;
+    border-radius: 15px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     text-align: center;
 }
 
 .movie-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.7);
+    transform: translateY(-7px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
 }
 
 /* Poster */
 .movie-poster {
     width: 100%;
-    height: 300px;
+    height: 320px;
     object-fit: cover;
     border-bottom: 2px solid #ffcc00;
 }
 
 /* Info-Bereich */
 .movie-info {
-    padding: 10px;
+    padding: 12px;
 }
 
 .movie-title {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
-    margin: 5px 0;
+    margin: 6px 0;
     color: #ffcc00;
 }
 
 .movie-year {
     font-size: 14px;
-    color: #aaaaaa;
+    color: #bbbbbb;
     margin: 2px 0;
 }
 

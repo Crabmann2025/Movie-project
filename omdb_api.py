@@ -21,8 +21,9 @@ def fetch_movie(title: str) -> dict:
     # --- Year ---
     year_str = data.get("Year", "0")
     try:
-        # Nimmt nur die ersten 4 Ziffern
-        year = int(''.join(filter(str.isdigit, year_str[:4])))
+        # Extrahiere die ersten 4 Ziffern sicher
+        digits = ''.join(c for c in year_str if c.isdigit())
+        year = int(digits[:4]) if digits else 0
     except ValueError:
         year = 0
 

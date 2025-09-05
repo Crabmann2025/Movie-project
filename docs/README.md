@@ -36,28 +36,21 @@ A simple Python app to manage your movie collection, fetch real movie data from 
 3. Install dependencies:
    ```bash  
    pip install -r requirements.txt
-4. Create a .env file in the project root and add your API key:
+4. Create a config.py file in the project root and add your API key:
+   - Get a free OMDb API key from OMDb API
+   - Activate your API key via the link sent to your email
+   - Insert your API key into the config.py file
    ```bash  
    API_KEY=your_api_key_here
 
 ---
 
-## Setup
-
-1. Get a free OMDb API key from OMDb API
-2. Activate your API key via the link sent to your email
-3. Insert your API key into the config.py file
-   ```bash
-   OMDB_API_KEY = "your_api_key_here"
-
-
----
 
 ## Usage
 
 - Run the app:
   ```bash
-  python main.py
+  python movie.py
 - Menu options:
   ```bash
   0. Exit

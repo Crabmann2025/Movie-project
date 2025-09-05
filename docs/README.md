@@ -25,11 +25,20 @@ A simple Python app to manage your movie collection, fetch real movie data from 
 
 ---
 
-## Requirements
+## Installation
 
-- Install the required packages:
-  ```bash
-  pip install -r requirements.txt
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Crabmann2025/Movie-project.git
+2. Navigate to the project folder:
+   ```bash 
+   cd Movie-project
+3. Install dependencies:
+   ```bash  
+   pip install -r requirements.txt
+4. Create a .env file in the project root and add your API key:
+   ```bash  
+   API_KEY=your_api_key_here
 
 ---
 

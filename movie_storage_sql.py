@@ -4,7 +4,7 @@ from sqlalchemy import create_engine, text
 DB_URL = "sqlite:///data/movies.db"
 engine = create_engine(DB_URL, echo=False)
 
-# --- Create tables if they don't exist ---
+# Create tables if they don't exist
 def init_db():
     with engine.connect() as connection:
         connection.execute(text("""
@@ -26,9 +26,8 @@ def init_db():
         """))
         connection.commit()
 
-init_db()
 
-# --- User Functions ---
+#  User Functions
 def list_users():
     """Return a list of all users."""
     with engine.connect() as connection:
@@ -48,6 +47,7 @@ def add_user(username):
         except Exception as e:
             print(f"Error creating user: {e}")
 
+
 def get_user_id(username):
     """Return the user ID for a given username."""
     with engine.connect() as connection:
@@ -57,7 +57,8 @@ def get_user_id(username):
         ).fetchone()
     return result[0] if result else None
 
-# --- Movie Functions ---
+
+#  Movie Functions
 def list_movies(username):
     """Return all movies for a user as a dict keyed by movie ID."""
     user_id = get_user_id(username)
@@ -71,6 +72,7 @@ def list_movies(username):
         ).fetchall()
 
     return {row[0]: {"title": row[1], "year": row[2], "rating": row[3], "poster_url": row[4]} for row in result}
+
 
 def add_movie(title, year, rating, poster_url=None, user=None):
     """Add a movie for a user."""
@@ -93,6 +95,7 @@ def add_movie(title, year, rating, poster_url=None, user=None):
         except Exception as e:
             print(f"Error adding movie: {e}")
 
+
 def delete_movie(movie_id, user=None):
     """Delete a movie by its ID for a specific user."""
     user_id = get_user_id(user)
@@ -111,6 +114,7 @@ def delete_movie(movie_id, user=None):
         else:
             print(f"Movie ID {movie_id} not found for {user}.")
 
+
 def update_movie(movie_id, rating, user=None):
     """Update a movie's rating by ID for a specific user."""
     user_id = get_user_id(user)
@@ -128,3 +132,6 @@ def update_movie(movie_id, rating, user=None):
             print(f"Movie ID {movie_id} rating updated for {user}.")
         else:
             print(f"Movie ID {movie_id} not found for {user}.")
+
+if __name__ == "__main__":
+    init_db()

@@ -3,6 +3,7 @@ from config import OMDB_API_KEY
 
 BASE_URL = "https://www.omdbapi.com/"
 
+
 def fetch_movie(title: str) -> dict:
     """Fetch movie details from OMDb including poster, safely handling special cases."""
     params = {"apikey": OMDB_API_KEY, "t": title}
@@ -18,7 +19,7 @@ def fetch_movie(title: str) -> dict:
         print(f"Movie not found: {title}")
         return {}
 
-    # --- Year ---
+    #  Year
     year_str = data.get("Year", "0")
     try:
         # Extrahiere die ersten 4 Ziffern sicher
@@ -27,7 +28,7 @@ def fetch_movie(title: str) -> dict:
     except ValueError:
         year = 0
 
-    # --- Rating ---
+    #  Rating
     imdb_rating = data.get("imdbRating", "0")
     try:
         rating = float(imdb_rating) if imdb_rating != "N/A" else 0.0

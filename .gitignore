@@ -7,3 +7,6 @@ config.py
 # Ignore Python cache
 __pycache__/
 *.pyc
+
+# Ignore generated sites
+generated_sites
